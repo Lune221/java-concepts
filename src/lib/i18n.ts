@@ -14,6 +14,8 @@ const strings = {
     footer:
       'Concepts follow the chapter structure of "Advanced Java" by Andriy Redko. ' +
       "Explanations and questions are written independently.",
+    madeWith: "Made with",
+    by: "by",
     baseDescription: "Advanced Java concepts, drilled.",
     home: {
       pageTitle: "Advanced Java — concepts",
@@ -88,6 +90,8 @@ const strings = {
     footer:
       'La sélection des concepts suit la structure des chapitres de « Advanced Java » ' +
       "d'Andriy Redko. Les explications et les questions sont rédigées de façon indépendante.",
+    madeWith: "Fait avec",
+    by: "par",
     baseDescription: "Des concepts Java avancés, à force de pratique.",
     home: {
       pageTitle: "Java avancé — concepts",

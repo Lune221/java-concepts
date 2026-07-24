@@ -53,6 +53,17 @@ const switchHref = localizePath(s.otherLang, delocalizePath(path));
     <footer class="mt-16 border-t border-rule">
       <div class="mx-auto max-w-5xl px-6 py-8">
         <p class="eyebrow">{s.footer}</p>
+        <p class="mt-3 text-sm text-muted">
+          {s.madeWith} <span aria-hidden="true">❤️</span> {s.by}{" "}
+          <a
+            href="https://megapulse.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline hover:text-ink"
+          >
+            megapulse
+          </a>
+        </p>
       </div>
     </footer>
   </body>
