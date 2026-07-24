@@ -31,10 +31,14 @@ JVM, writes your source into the virtual filesystem, compiles it, and runs the
 resulting class. Everything stays on the user's machine.
 
 **The one line to verify.** `JAVAC_CLASSPATH` in `src/lib/cheerpj.ts` is the
-classpath handed to javac. If compilation fails with a ClassNotFound on
-`com.sun.tools.javac.Main`, adjust it against the reference implementation:
-[leaningtech/javafiddle](https://github.com/leaningtech/javafiddle) (Apache-2.0),
-which does exactly this.
+classpath handed to javac: `/app/tools.jar:/files/`. `tools.jar` is what
+actually contains `com.sun.tools.javac.Main`; a `postinstall` script
+(`scripts/fetch-tools-jar.mjs`) downloads it into `public/` (gitignored, ~17MB)
+so it's served from the site root and reachable at `/app/tools.jar`. If
+compilation fails with a ClassNotFound on `com.sun.tools.javac.Main`, check
+that the download ran, and cross-check the classpath against the reference
+implementation: [leaningtech/javafiddle](https://github.com/leaningtech/javafiddle)
+(Apache-2.0), which does exactly this.
 
 **Licensing.** CheerpJ is free for personal projects and technical evaluation.
 Check the terms before shipping it inside a commercial product.

@@ -14,12 +14,13 @@
 const RUNTIME = "https://cjrtnc.leaningtech.com/4.3/loader.js";
 
 /**
- * Classpath handed to javac. If compilation fails with a ClassNotFound on
- * com.sun.tools.javac.Main, this is the line to adjust — cross-check against
- * the JavaFiddle source (github.com/leaningtech/javafiddle, Apache-2.0),
- * which is the reference implementation of this exact technique.
+ * Classpath handed to javac. tools.jar (served from public/, mounted at
+ * /app/ by CheerpJ) is what actually contains com.sun.tools.javac.Main —
+ * cross-check against the JavaFiddle source
+ * (github.com/leaningtech/javafiddle, Apache-2.0), the reference
+ * implementation of this exact technique, if this ever needs adjusting.
  */
-const JAVAC_CLASSPATH = "/app/";
+const JAVAC_CLASSPATH = "/app/tools.jar:/files/";
 
 declare global {
   interface Window {
