@@ -1,0 +1,49 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import questions from "../../data/questions.json";
+
+export async function getStaticPaths() {
+  const concepts = await getCollection("concepts");
+  return concepts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const related = questions.filter((q) => q.concept === entry.id);
+---
+
+<Base title={`${entry.data.title} — Advanced Java`} description={entry.data.definition}>
+  <a href="/" class="eyebrow hover:text-ink">&larr; All concepts</a>
+
+  <article class="mt-6 flex gap-6">
+    <div class="gutter hidden pt-2 sm:block">
+      {String(entry.data.offset).padStart(4, "0")}
+      <div class="mt-3 leading-relaxed">
+        {entry.data.tags.map((t: string) => <div>{t}</div>)}
+      </div>
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <span class="eyebrow">{entry.data.topic}{entry.data.source ? ` · ${entry.data.source}` : ""}</span>
+      <h1 class="ui mt-2 text-3xl font-bold tracking-tight">{entry.data.title}</h1>
+
+      <p class="mt-4 border-l-2 border-cobalt pl-5 text-[1.05rem] leading-relaxed">
+        {entry.data.definition}
+      </p>
+
+      <div class="prose-note mt-10">
+        <Content />
+      </div>
+
+      {related.length > 0 && (
+        <div class="mt-14 border-t border-rule pt-6">
+          <span class="eyebrow">{related.length} questions on this concept</span>
+          <a href={`/quiz?concept=${entry.id}`} class="ui mt-3 block w-fit bg-ink px-5 py-2 text-sm text-paper">
+            Drill it
+          </a>
+        </div>
+      )}
+    </div>
+  </article>
+</Base>

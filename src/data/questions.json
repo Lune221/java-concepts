@@ -1,0 +1,665 @@
+[
+  {
+    "id": "q-001",
+    "concept": "object-construction",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "class Base {\n    Base() { System.out.println(describe()); }\n    String describe() { return \"base\"; }\n}\n\nclass Derived extends Base {\n    private String name = \"derived\";\n    @Override String describe() { return name; }\n}\n\nnew Derived();",
+    "expected": "null",
+    "explanation": "The superclass constructor runs before the subclass field initialisers, so name is still null when the overridden describe() is called. Never call an overridable method from a constructor."
+  },
+  {
+    "id": "q-002",
+    "concept": "object-construction",
+    "type": "mcq",
+    "prompt": "In what order does instance initialisation run?",
+    "options": [
+      "Constructor body, then field initialisers, then instance blocks",
+      "Superclass initialisation, then field initialisers and instance blocks in source order, then the constructor body",
+      "Field initialisers, then the constructor body, then superclass initialisation",
+      "Instance blocks, then superclass initialisation, then the constructor body"
+    ],
+    "answer": 1,
+    "explanation": "The superclass is fully initialised first. Then field initialisers and instance blocks run interleaved in the order they appear in the source, and only then does the constructor body execute."
+  },
+  {
+    "id": "q-003",
+    "concept": "finalizers-and-gc",
+    "type": "flashcard",
+    "prompt": "Why is finalize() unusable for releasing resources?",
+    "expected": "It may never run at all — the JVM can exit without finalising. It runs on an unspecified thread at an unspecified time, costs at least two GC cycles, and can resurrect the object. AutoCloseable with try-with-resources, or Cleaner, replaces it.",
+    "explanation": ""
+  },
+  {
+    "id": "q-004",
+    "concept": "finalizers-and-gc",
+    "type": "mcq",
+    "prompt": "Which reference type is cleared only after the object has been finalised, making it the basis for Cleaner?",
+    "options": [
+      "SoftReference",
+      "WeakReference",
+      "PhantomReference",
+      "AtomicReference"
+    ],
+    "answer": 2,
+    "explanation": "PhantomReference is enqueued post-mortem, which is what makes it safe for cleanup actions. SoftReference is cleared under memory pressure and WeakReference at the next collection."
+  },
+  {
+    "id": "q-005",
+    "concept": "singleton-and-factories",
+    "type": "mcq",
+    "prompt": "Which singleton form is thread-safe and resistant to both reflection and deserialisation attacks?",
+    "options": [
+      "A static field initialised eagerly",
+      "Double-checked locking on a volatile field",
+      "A single-constant enum",
+      "A synchronized getInstance() method"
+    ],
+    "answer": 2,
+    "explanation": "The JVM guarantees an enum constant is instantiated once, and both reflective instantiation and deserialisation of enums are blocked by the platform. The other forms are thread-safe but not attack-resistant."
+  },
+  {
+    "id": "q-006",
+    "concept": "singleton-and-factories",
+    "type": "flashcard",
+    "prompt": "Name three advantages a static factory method has over a constructor.",
+    "expected": "It has a name, so its intent is readable. It is not required to return a new instance, so it can cache or pool. It can return any subtype of its declared return type. List.of, Optional.empty and Integer.valueOf each use at least one.",
+    "explanation": ""
+  },
+  {
+    "id": "q-007",
+    "concept": "equals-hashcode",
+    "type": "output",
+    "prompt": "Point overrides equals but not hashCode. What is printed?",
+    "code": "Set<Point> set = new HashSet<>();\nset.add(new Point(1, 2));\nSystem.out.println(set.contains(new Point(1, 2)));",
+    "expected": "false",
+    "explanation": "The second Point gets a different identity hash code, so the lookup goes to a different bucket and equals is never consulted. Equal objects must produce equal hash codes."
+  },
+  {
+    "id": "q-008",
+    "concept": "equals-hashcode",
+    "type": "mcq",
+    "prompt": "Which statement about the equals/hashCode contract is true?",
+    "options": [
+      "Equal hash codes imply equal objects",
+      "Equal objects must have equal hash codes, but equal hash codes do not imply equality",
+      "Both directions of the implication are required",
+      "hashCode only matters for TreeMap"
+    ],
+    "answer": 1,
+    "explanation": "Collisions are legal and unavoidable — distinct objects may share a hash code. Only the forward direction is a contract."
+  },
+  {
+    "id": "q-009",
+    "concept": "equals-hashcode",
+    "type": "fill",
+    "prompt": "Complete the null-safe hashCode implementation.",
+    "code": "@Override\npublic int hashCode() {\n    return ___.hash(firstName, lastName, birthDate);\n}",
+    "blanks": [
+      "Objects"
+    ],
+    "explanation": "Objects.hash accepts varargs and handles nulls. Note it allocates an array on every call, so hot-path classes sometimes compute the value by hand or cache it."
+  },
+  {
+    "id": "q-010",
+    "concept": "defensive-copying",
+    "type": "flashcard",
+    "prompt": "Why should a defensive copy be made before validating a constructor argument?",
+    "expected": "Otherwise a hostile caller holding a reference to the mutable argument can change it in the window between the validity check and the field assignment. Copy first, then validate the copy.",
+    "explanation": ""
+  },
+  {
+    "id": "q-011",
+    "concept": "defensive-copying",
+    "type": "mcq",
+    "prompt": "What kind of copy does Object.clone() produce by default?",
+    "options": [
+      "A deep copy of the whole object graph",
+      "A shallow copy — nested mutable objects stay shared",
+      "No copy; it returns this",
+      "A copy only of final fields"
+    ],
+    "answer": 1,
+    "explanation": "Fields are copied bit for bit, so any reference field points at the same object as the original. Cloneable also does not declare clone(), which is why the whole protocol is considered broken."
+  },
+  {
+    "id": "q-012",
+    "concept": "string-pool",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "String a = \"ja\" + \"va\";\nString b = \"java\";\nString c = new StringBuilder(\"ja\").append(\"va\").toString();\nSystem.out.println(a == b);\nSystem.out.println(b == c);",
+    "expected": "true\nfalse",
+    "explanation": "\"ja\" + \"va\" is a constant expression folded at compile time into the pooled literal. The StringBuilder result is produced at runtime and is not pooled."
+  },
+  {
+    "id": "q-013",
+    "concept": "functional-interfaces",
+    "type": "mcq",
+    "prompt": "An interface declares one abstract method plus an abstract equals(Object). Is it still a functional interface?",
+    "options": [
+      "No — it has two abstract methods",
+      "Yes — public Object methods do not count towards the total",
+      "Only if annotated with @FunctionalInterface",
+      "Only if equals has a default implementation"
+    ],
+    "answer": 1,
+    "explanation": "Methods that redeclare a public method of Object are excluded from the count. This is exactly why Comparator, which declares equals, remains functional."
+  },
+  {
+    "id": "q-014",
+    "concept": "functional-interfaces",
+    "type": "fill",
+    "prompt": "Class C inherits a conflicting default hello() from both A and B. Disambiguate to A's version.",
+    "code": "class C implements A, B {\n    @Override public void hello() {\n        ___.super.hello();\n    }\n}",
+    "blanks": [
+      "A"
+    ],
+    "explanation": "The InterfaceName.super.method() syntax selects one inherited default explicitly. The compiler refuses to guess when two unrelated interfaces supply the same default."
+  },
+  {
+    "id": "q-015",
+    "concept": "immutable-classes",
+    "type": "flashcard",
+    "prompt": "What is the final-field guarantee in the memory model?",
+    "expected": "Once a constructor completes without letting `this` escape, every thread is guaranteed to see the fully initialised values of the object's final fields, with no synchronisation. Let `this` escape from the constructor and the guarantee is lost.",
+    "explanation": ""
+  },
+  {
+    "id": "q-016",
+    "concept": "inheritance-vs-composition",
+    "type": "mcq",
+    "prompt": "A CountingSet extends HashSet and overrides both add and addAll to increment a counter. Adding three elements via addAll gives a count of six. Why?",
+    "options": [
+      "addAll is called twice internally",
+      "HashSet.addAll is implemented in terms of add, so both overrides fire",
+      "HashSet caches the size",
+      "The counter is not volatile"
+    ],
+    "answer": 1,
+    "explanation": "The subclass depends on an undocumented self-use pattern in the superclass. Composition with delegation cannot break this way, because it only relies on the published contract."
+  },
+  {
+    "id": "q-017",
+    "concept": "inheritance-vs-composition",
+    "type": "flashcard",
+    "prompt": "When is inheritance the right choice over composition?",
+    "expected": "Only for a genuine is-a relationship where the supertype was designed for extension — meaning it documents its self-use patterns, or it is abstract with clearly designated hook methods. Everything else should be final.",
+    "explanation": ""
+  },
+  {
+    "id": "q-018",
+    "concept": "type-erasure",
+    "type": "mcq",
+    "prompt": "Why does `new T[10]` fail to compile inside a generic class?",
+    "options": [
+      "Arrays cannot be generic at all",
+      "T is erased, so there is no runtime component type for the array to check against",
+      "The array would not be serialisable",
+      "T might be an interface"
+    ],
+    "answer": 1,
+    "explanation": "Arrays are reified — they store and check their component type at runtime — while type variables are erased. The usual workaround is (T[]) new Object[10] with a suppressed unchecked warning."
+  },
+  {
+    "id": "q-019",
+    "concept": "type-erasure",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "List<String> a = new ArrayList<>();\nList<Integer> b = new ArrayList<>();\nSystem.out.println(a.getClass() == b.getClass());",
+    "expected": "true",
+    "explanation": "Both erase to ArrayList. The parameterisation exists only at compile time and leaves no trace in the runtime class."
+  },
+  {
+    "id": "q-020",
+    "concept": "wildcards-pecs",
+    "type": "mcq",
+    "prompt": "You need a parameter you will only read Numbers out of. Which declaration?",
+    "options": [
+      "List<Number>",
+      "List<? extends Number>",
+      "List<? super Number>",
+      "List<?>"
+    ],
+    "answer": 1,
+    "explanation": "Producer Extends. `? extends Number` accepts List<Integer>, List<Double> and so on, and every element read is guaranteed to be a Number. You cannot add to it, which is correct for a producer."
+  },
+  {
+    "id": "q-021",
+    "concept": "wildcards-pecs",
+    "type": "fill",
+    "prompt": "Complete the signature so src can be read from and dst written to.",
+    "code": "void copy(List<? ___ Number> src, List<? ___ Number> dst) {\n    for (Number n : src) dst.add(n);\n}",
+    "blanks": [
+      "extends",
+      "super"
+    ],
+    "explanation": "Producer Extends, Consumer Super. Reading is safe from an upper-bounded wildcard; writing is safe to a lower-bounded one."
+  },
+  {
+    "id": "q-022",
+    "concept": "wildcards-pecs",
+    "type": "flashcard",
+    "prompt": "What is the difference between List<?> and the raw type List?",
+    "expected": "List<?> is type-safe: the compiler knows the element type is some specific unknown type, so it forbids adding anything except null. The raw List switches generic checking off entirely and produces unchecked warnings.",
+    "explanation": ""
+  },
+  {
+    "id": "q-023",
+    "concept": "enums",
+    "type": "mcq",
+    "prompt": "Why should ordinal() never be persisted?",
+    "options": [
+      "It is not serialisable",
+      "It changes whenever someone reorders the constant declarations",
+      "It is always zero for the first constant",
+      "It is private"
+    ],
+    "answer": 1,
+    "explanation": "The ordinal is positional. Reordering or inserting a constant silently changes the meaning of every stored value. Persist name() or an explicit, declared code field."
+  },
+  {
+    "id": "q-024",
+    "concept": "enums",
+    "type": "mcq",
+    "prompt": "Why are EnumSet and EnumMap faster than HashSet and HashMap for enum keys?",
+    "options": [
+      "They are synchronized",
+      "The constant set is known and ordinal-indexed, so they use a bit vector and a plain array",
+      "They cache hash codes",
+      "They avoid boxing only"
+    ],
+    "answer": 1,
+    "explanation": "No hashing and no collision handling are needed. Iteration also follows declaration order rather than hash order."
+  },
+  {
+    "id": "q-025",
+    "concept": "annotation-retention",
+    "type": "mcq",
+    "prompt": "Which retention policy is required for an annotation to be readable via reflection?",
+    "options": [
+      "SOURCE",
+      "CLASS",
+      "RUNTIME",
+      "INHERITED"
+    ],
+    "answer": 2,
+    "explanation": "CLASS is the default and keeps the annotation in the class file but not in the runtime constant pool. Only RUNTIME makes it visible to getAnnotation."
+  },
+  {
+    "id": "q-026",
+    "concept": "annotation-retention",
+    "type": "flashcard",
+    "prompt": "What are the limits of @Inherited?",
+    "expected": "It applies only to class-level annotations and only up a superclass chain. Annotations on interfaces are never inherited by implementing classes, and method-level annotations are never inherited by overriding methods.",
+    "explanation": ""
+  },
+  {
+    "id": "q-027",
+    "concept": "annotation-retention",
+    "type": "fill",
+    "prompt": "Make this annotation readable by a framework at runtime and usable only on methods.",
+    "code": "@Retention(RetentionPolicy.___)\n@Target(ElementType.___)\npublic @interface Audited { }",
+    "blanks": [
+      "RUNTIME",
+      "METHOD"
+    ],
+    "explanation": "Without RUNTIME retention the annotation is discarded before reflection can see it. @Target restricts placement so misuse becomes a compile error."
+  },
+  {
+    "id": "q-028",
+    "concept": "overloading-vs-overriding",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "class Printer {\n    void print(Object o) { System.out.println(\"Object\"); }\n    void print(String s) { System.out.println(\"String\"); }\n}\n\nObject value = \"hello\";\nnew Printer().print(value);",
+    "expected": "Object",
+    "explanation": "Overloads are resolved from the static type at compile time. The declared type of value is Object, so print(Object) is selected regardless of what it actually holds."
+  },
+  {
+    "id": "q-029",
+    "concept": "overloading-vs-overriding",
+    "type": "mcq",
+    "prompt": "For the call f(1), which overload wins?",
+    "options": [
+      "f(long)",
+      "f(Integer)",
+      "f(int...)",
+      "f(Object)"
+    ],
+    "answer": 0,
+    "explanation": "Resolution runs in three phases: widening only, then boxing, then varargs. It stops at the first phase that finds a match, so the widening conversion to long beats boxing to Integer and beats varargs."
+  },
+  {
+    "id": "q-030",
+    "concept": "overloading-vs-overriding",
+    "type": "flashcard",
+    "prompt": "Which of these may an overriding method change: return type, visibility, checked exceptions?",
+    "expected": "The return type may be covariant (a subtype). Visibility may widen but never narrow. Checked exceptions may be narrowed or dropped but never broadened. The parameter list must match exactly — anything else is an overload, not an override.",
+    "explanation": ""
+  },
+  {
+    "id": "q-031",
+    "concept": "method-references",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "List<String> list = new ArrayList<>();\nSupplier<Integer> s = list::size;\nlist.add(\"a\");\nlist.add(\"b\");\nSystem.out.println(s.get());",
+    "expected": "2",
+    "explanation": "A bound method reference captures the receiver object, not the variable. The list object is the same one that was mutated, so the size reflects the additions. Reassigning the variable to a new list would not be visible."
+  },
+  {
+    "id": "q-032",
+    "concept": "method-references",
+    "type": "mcq",
+    "prompt": "String::length as a Function<String, Integer> is which kind of reference?",
+    "options": [
+      "Static",
+      "Bound instance",
+      "Unbound instance — the argument becomes the receiver",
+      "Constructor"
+    ],
+    "answer": 2,
+    "explanation": "No receiver is supplied at creation time, so the resulting function takes the receiver as its parameter. Contrast with str::length, which is bound and takes no arguments."
+  },
+  {
+    "id": "q-033",
+    "concept": "boxing-and-caching",
+    "type": "output",
+    "prompt": "What does this print?",
+    "code": "Integer a = 127, b = 127;\nInteger c = 128, d = 128;\nSystem.out.println(a == b);\nSystem.out.println(c == d);",
+    "expected": "true\nfalse",
+    "explanation": "Integer.valueOf caches the range -128 to 127 by specification, so both 127 references point at the same cached object. 128 is outside the cache and allocates two distinct objects."
+  },
+  {
+    "id": "q-034",
+    "concept": "boxing-and-caching",
+    "type": "output",
+    "prompt": "What happens here?",
+    "code": "Map<String, Integer> counts = new HashMap<>();\nint n = counts.get(\"absent\");\nSystem.out.println(n);",
+    "expected": "NullPointerException",
+    "explanation": "get returns null for a missing key, and unboxing null to int throws. The line contains no visible method call on a null reference, which is what makes this so hard to spot. Use getOrDefault."
+  },
+  {
+    "id": "q-035",
+    "concept": "boxing-and-caching",
+    "type": "flashcard",
+    "prompt": "When should you use a wrapper type instead of a primitive?",
+    "expected": "Only when you need null to mean something, when the value is a collection element, or when it is a generic type argument. Everywhere else primitives avoid allocation and remove a whole class of NullPointerExceptions.",
+    "explanation": ""
+  },
+  {
+    "id": "q-036",
+    "concept": "checked-vs-unchecked",
+    "type": "mcq",
+    "prompt": "What should decide whether an exception is checked or unchecked?",
+    "options": [
+      "How serious the failure is",
+      "Whether the caller has a realistic recovery action",
+      "Whether it crosses a module boundary",
+      "Whether it will be logged"
+    ],
+    "answer": 1,
+    "explanation": "Checked exceptions force the caller to acknowledge a condition they can plausibly handle. Programming errors and violated preconditions should be unchecked, because no runtime recovery is possible."
+  },
+  {
+    "id": "q-037",
+    "concept": "try-with-resources",
+    "type": "output",
+    "prompt": "Which exception reaches the caller, and where does the other one go?",
+    "code": "try (Resource r = new Resource()) {   // close() throws CloseFailure\n    throw new WorkFailure();\n}",
+    "expected": "WorkFailure",
+    "explanation": "The exception from the try block is the primary one. The failure from close() is attached to it and retrievable via getSuppressed(). The old try/finally idiom did the opposite, letting the close failure discard the real cause."
+  },
+  {
+    "id": "q-038",
+    "concept": "try-with-resources",
+    "type": "fill",
+    "prompt": "Retrieve the exception thrown by close() after the block failed.",
+    "code": "catch (Exception e) {\n    for (Throwable t : e.___()) {\n        log.warn(\"close failed\", t);\n    }\n}",
+    "blanks": [
+      "getSuppressed"
+    ],
+    "explanation": "Suppressed exceptions preserve the close failure without letting it replace the primary cause."
+  },
+  {
+    "id": "q-039",
+    "concept": "checked-vs-unchecked",
+    "type": "flashcard",
+    "prompt": "Why is `catch (SQLException e) { throw new RuntimeException(); }` a bug?",
+    "expected": "It discards the cause. The new exception's stack trace starts at the catch block, so the original failure — the query, the constraint, the connection error — is gone. Always pass the caught exception as the cause.",
+    "explanation": ""
+  },
+  {
+    "id": "q-040",
+    "concept": "happens-before",
+    "type": "mcq",
+    "prompt": "Which of these does NOT establish a happens-before edge?",
+    "options": [
+      "A volatile write followed by a volatile read of the same field",
+      "Thread.start() and the first action of the started thread",
+      "Two unsynchronised accesses to the same plain field from different threads",
+      "Releasing a monitor, then acquiring that same monitor"
+    ],
+    "answer": 2,
+    "explanation": "Plain reads and writes carry no ordering guarantee at all. Without volatile, a lock, or a thread lifecycle event, the JIT may reorder freely and a thread can read a stale value indefinitely."
+  },
+  {
+    "id": "q-041",
+    "concept": "happens-before",
+    "type": "fill",
+    "prompt": "Make the stop flag visible to the polling thread.",
+    "code": "class Stopper {\n    private ___ boolean stop = false;\n\n    void run() { while (!stop) { } }\n    void requestStop() { stop = true; }\n}",
+    "blanks": [
+      "volatile"
+    ],
+    "explanation": "volatile creates the happens-before edge between the write and every subsequent read, and prevents the JIT hoisting the field read out of the loop."
+  },
+  {
+    "id": "q-042",
+    "concept": "executors-and-futures",
+    "type": "mcq",
+    "prompt": "An exception is thrown inside a task submitted with submit(). What happens if nobody calls get()?",
+    "options": [
+      "It reaches the thread's uncaught-exception handler",
+      "It is captured in the Future and disappears silently",
+      "The executor shuts down",
+      "It is rethrown on the submitting thread"
+    ],
+    "answer": 1,
+    "explanation": "submit wraps the task and stores the throwable in the Future. execute() lets it propagate to the uncaught-exception handler instead. This asymmetry silently swallows a great many production errors."
+  },
+  {
+    "id": "q-043",
+    "concept": "executors-and-futures",
+    "type": "flashcard",
+    "prompt": "Why is an unbounded work queue dangerous in a production thread pool?",
+    "expected": "Under sustained overload the queue grows without limit until the JVM runs out of memory, instead of pushing back on the producer. Construct ThreadPoolExecutor directly with a bounded queue and an explicit rejection policy so overload becomes backpressure.",
+    "explanation": ""
+  },
+  {
+    "id": "q-044",
+    "concept": "atomics-and-cas",
+    "type": "mcq",
+    "prompt": "Why is a volatile int still unsafe as a counter?",
+    "options": [
+      "volatile does not apply to primitives",
+      "volatile guarantees visibility and ordering, not atomicity — count++ is three operations",
+      "volatile reads are cached per thread",
+      "It works only inside synchronized blocks"
+    ],
+    "answer": 1,
+    "explanation": "The read, increment and write can interleave between threads, so increments are lost. AtomicInteger makes the whole update indivisible with a compare-and-swap retry loop."
+  },
+  {
+    "id": "q-045",
+    "concept": "atomics-and-cas",
+    "type": "flashcard",
+    "prompt": "What is the ABA problem?",
+    "expected": "A value changes from A to B and back to A between your read and your compare-and-swap. The CAS sees the expected value and succeeds, even though the state was modified in between. AtomicStampedReference attaches a version counter to detect it.",
+    "explanation": ""
+  },
+  {
+    "id": "q-046",
+    "concept": "concurrent-collections",
+    "type": "output",
+    "prompt": "Is this increment atomic on a ConcurrentHashMap?",
+    "code": "Integer current = map.get(key);\nmap.put(key, current == null ? 1 : current + 1);",
+    "expected": "No",
+    "explanation": "Each individual operation is thread-safe, but the get-then-put sequence is not — another thread can interleave between them and an update is lost. Use map.merge(key, 1, Integer::sum) instead."
+  },
+  {
+    "id": "q-047",
+    "concept": "concurrent-collections",
+    "type": "fill",
+    "prompt": "Guard a wait() correctly against spurious wakeups.",
+    "code": "synchronized (lock) {\n    ___ (!condition) {\n        lock.wait();\n    }\n}",
+    "blanks": [
+      "while"
+    ],
+    "explanation": "A thread may wake without any notify at all, and the condition may have been consumed by another waiter. The predicate must be re-checked in a loop; an if is a race."
+  },
+  {
+    "id": "q-048",
+    "concept": "serialization",
+    "type": "mcq",
+    "prompt": "What happens if you omit serialVersionUID?",
+    "options": [
+      "Serialization fails immediately",
+      "The compiler derives one from the class structure, so almost any edit breaks deserialisation of existing data",
+      "It defaults to 0 and never changes",
+      "Only Externalizable classes are affected"
+    ],
+    "answer": 1,
+    "explanation": "The generated value depends on fields, methods and modifiers. Adding a method can change it, producing InvalidClassException against previously written data. Always declare it explicitly."
+  },
+  {
+    "id": "q-049",
+    "concept": "serialization",
+    "type": "flashcard",
+    "prompt": "Why is deserialisation a security risk?",
+    "expected": "Objects are reconstructed without running any constructor, so every invariant enforced there is bypassed. Crafted byte streams can drive gadget chains through classes on the classpath into remote code execution. ObjectInputFilter exists to restrict what may be deserialised.",
+    "explanation": ""
+  },
+  {
+    "id": "q-050",
+    "concept": "serialization",
+    "type": "mcq",
+    "prompt": "During deserialisation, which constructor runs?",
+    "options": [
+      "The no-arg constructor of the class itself",
+      "The no-arg constructor of the first non-serialisable superclass",
+      "The constructor matching the serialised fields",
+      "None at all, ever"
+    ],
+    "answer": 1,
+    "explanation": "The serialisable part of the hierarchy is restored from the stream without construction, but the first non-serialisable superclass must have an accessible no-arg constructor and it is invoked."
+  },
+  {
+    "id": "q-051",
+    "concept": "reflection",
+    "type": "mcq",
+    "prompt": "What is the difference between getMethods() and getDeclaredMethods()?",
+    "options": [
+      "No difference",
+      "getMethods returns public members including inherited; getDeclaredMethods returns all members declared on that exact class but nothing inherited",
+      "getDeclaredMethods returns only private members",
+      "getMethods excludes static methods"
+    ],
+    "answer": 1,
+    "explanation": "Confusing the two is the most common reflection bug — looking for a private method with getMethod, or an inherited one with getDeclaredMethod."
+  },
+  {
+    "id": "q-052",
+    "concept": "reflection",
+    "type": "flashcard",
+    "prompt": "You call Method.invoke and the target throws. What do you actually catch?",
+    "expected": "InvocationTargetException, which wraps the real exception. Always unwrap it with getCause() before logging or rethrowing, otherwise the stack trace points at the reflection machinery rather than the failure.",
+    "explanation": ""
+  },
+  {
+    "id": "q-053",
+    "concept": "method-handles",
+    "type": "mcq",
+    "prompt": "Why does invokeExact throw WrongMethodTypeException more often than invoke?",
+    "options": [
+      "It performs no access check",
+      "It requires the call site's static signature to match the handle's MethodType exactly, including the return cast",
+      "It cannot handle primitives",
+      "It is only valid for static methods"
+    ],
+    "answer": 1,
+    "explanation": "invokeExact does no conversion at all. A missing cast on the return value is the usual cause. invoke inserts the conversions for you at a small cost."
+  },
+  {
+    "id": "q-054",
+    "concept": "method-handles",
+    "type": "flashcard",
+    "prompt": "Where have you already used method handles without writing any?",
+    "expected": "Every lambda expression. Lambdas compile to an invokedynamic instruction whose bootstrap method builds a MethodHandle at first execution, which is why they do not generate a class file each the way anonymous classes do.",
+    "explanation": ""
+  },
+  {
+    "id": "q-055",
+    "concept": "scripting-api",
+    "type": "mcq",
+    "prompt": "How does ScriptEngineManager discover available engines?",
+    "options": [
+      "A hardcoded list",
+      "ServiceLoader, so adding a language jar to the classpath is enough",
+      "A system property",
+      "JNDI lookup"
+    ],
+    "answer": 1,
+    "explanation": "JSR-223 engines register through the service loader mechanism. Nashorn was removed in Java 15, so GraalVM's js engine is the current route to JavaScript on the JVM."
+  },
+  {
+    "id": "q-056",
+    "concept": "compiler-api",
+    "type": "flashcard",
+    "prompt": "How can a program compile Java source at runtime with no external process?",
+    "expected": "ToolProvider.getSystemJavaCompiler() returns javac as a library. Feed it JavaFileObjects — which can serve source straight from a String — collect diagnostics with a DiagnosticCollector, and load the resulting bytes with a custom ClassLoader. It returns null on a JRE without the compiler module.",
+    "explanation": ""
+  },
+  {
+    "id": "q-057",
+    "concept": "annotation-processors",
+    "type": "mcq",
+    "prompt": "Can an annotation processor modify the body of an existing class?",
+    "options": [
+      "Yes, through the Filer",
+      "No — it can only generate new source files; existing code is read-only",
+      "Only for classes in the same package",
+      "Only during the final round"
+    ],
+    "answer": 1,
+    "explanation": "The official API is generate-only, which is why generated builders and components are separate classes. Lombok modifies the compiler's AST through internal APIs, which is precisely why it breaks across JDK releases."
+  },
+  {
+    "id": "q-058",
+    "concept": "annotation-processors",
+    "type": "flashcard",
+    "prompt": "What are processing rounds?",
+    "expected": "Generated sources are compiled and themselves submitted for annotation processing, so a processor can trigger further generation. The cycle ends on a round that produces no new files. Returning true from process() claims the annotations so no other processor sees them.",
+    "explanation": ""
+  },
+  {
+    "id": "q-059",
+    "concept": "java-agents",
+    "type": "mcq",
+    "prompt": "Which change is NOT permitted by Instrumentation.redefineClasses?",
+    "options": [
+      "Replacing a method body",
+      "Adding a new method to the class",
+      "Changing a constant in a method",
+      "Rewriting a loop"
+    ],
+    "answer": 1,
+    "explanation": "Redefinition is limited to method bodies. Adding or removing methods and fields, or changing the class hierarchy, is rejected — the object layout and vtables of existing instances cannot change."
+  },
+  {
+    "id": "q-060",
+    "concept": "java-agents",
+    "type": "flashcard",
+    "prompt": "What is the difference between premain and agentmain?",
+    "expected": "premain runs before the application's main method, when the agent is supplied with -javaagent. agentmain is the entry point when the agent is loaded into an already-running JVM through the Attach API, and it typically calls retransformClasses to instrument classes that are already loaded.",
+    "explanation": ""
+  }
+]

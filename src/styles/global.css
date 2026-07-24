@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  --paper: #edf0ec;
+  --surface: #f7f9f6;
+  --ink: #1b2420;
+  --muted: #5f6b64;
+  --rule: #d2d9d1;
+  --cobalt: #2b4cf2;
+  --oxide: #b8442e;
+  --moss: #3e7a4f;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body { font-family: "Source Serif 4", Georgia, serif; }
+
+/* --- Signature: the offset gutter -------------------------------------
+   A disassembly listing prints a byte offset down the left of every
+   instruction. Every concept and question here carries the same gutter,
+   so the whole site reads like a listing you can step through.        */
+.gutter {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-right: 1px solid var(--rule);
+  padding-right: 0.875rem;
+  min-width: 5.5rem;
+  text-align: right;
+  user-select: none;
+}
+
+.eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1, h2, h3, .ui { font-family: "Space Grotesk", system-ui, sans-serif; }
+
+code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+pre {
+  background: #12181c;
+  color: #e6ecea;
+  padding: 1rem 1.125rem;
+  border-radius: 2px;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 2px;
+}
+
+.prose-note p { max-width: 62ch; line-height: 1.7; }
+.prose-note h2 { margin-top: 2.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; }
+.prose-note ul { list-style: disc; padding-left: 1.25rem; }
+.prose-note li { margin: 0.3rem 0; line-height: 1.65; }
+.prose-note :not(pre) > code {
+  background: #e2e7e0;
+  padding: 0.08em 0.32em;
+  border-radius: 2px;
+  font-size: 0.86em;
+}

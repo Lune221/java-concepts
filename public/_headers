@@ -1,0 +1,14 @@
+# Cloudflare Pages reads this file automatically.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# CheerpJ uses SharedArrayBuffer for threading in some configurations. If the
+# playground reports that SharedArrayBuffer is unavailable, uncomment these two
+# lines to enable cross-origin isolation. Note that doing so also requires the
+# CheerpJ CDN to send Cross-Origin-Resource-Policy, so test before shipping.
+#
+# /*
+#   Cross-Origin-Opener-Policy: same-origin
+#   Cross-Origin-Embedder-Policy: require-corp

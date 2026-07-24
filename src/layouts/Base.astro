@@ -1,0 +1,55 @@
+---
+import "../styles/global.css";
+const { title, description = "Advanced Java concepts, drilled." } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  ["/", "Concepts"],
+  ["/quiz", "Quiz"],
+  ["/playground", "Playground"],
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cjrtnc.leaningtech.com" crossorigin />
+  </head>
+  <body class="min-h-screen">
+    <header class="border-b border-rule">
+      <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <a href="/" class="ui text-sm font-bold tracking-tight">
+          advanced<span class="text-cobalt">.java</span>
+        </a>
+        <nav class="flex gap-6">
+          {nav.map(([href, label]) => (
+            <a
+              href={href}
+              class="eyebrow hover:text-ink"
+              style={path === href ? "color: var(--cobalt)" : ""}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-6 py-12">
+      <slot />
+    </main>
+
+    <footer class="mt-16 border-t border-rule">
+      <div class="mx-auto max-w-5xl px-6 py-8">
+        <p class="eyebrow">
+          Concepts follow the chapter structure of "Advanced Java" by Andriy Redko.
+          Explanations and questions are written independently.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
