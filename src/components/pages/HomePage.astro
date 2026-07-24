@@ -1,0 +1,66 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import questionsEn from "../../data/questions.json";
+import questionsFr from "../../data/questions.fr.json";
+import { t, localizePath, type Lang } from "../../lib/i18n";
+
+const { lang = "en" as Lang } = Astro.props;
+const s = t(lang);
+const questions = lang === "fr" ? questionsFr : questionsEn;
+
+const concepts = (await getCollection(lang === "fr" ? "conceptsFr" : "concepts")).sort(
+  (a, b) => a.data.offset - b.data.offset
+);
+
+const topics = [...new Set(concepts.map((c) => c.data.topic))];
+const countFor = (slug: string) => questions.filter((q) => q.concept === slug).length;
+---
+
+<Base title={s.home.pageTitle} lang={lang}>
+  <section class="mb-16 border-b border-rule pb-12">
+    <span class="eyebrow">{s.home.countSummary(concepts.length, questions.length)}</span>
+    <h1 class="ui mt-4 max-w-2xl text-[2.75rem] font-bold leading-[1.08] tracking-tight">
+      {s.home.h1}
+    </h1>
+    <p class="mt-5 max-w-xl leading-relaxed text-muted">
+      {s.home.intro}
+    </p>
+    <div class="mt-7 flex gap-3">
+      <a href={localizePath(lang, "/quiz")} class="ui bg-ink px-5 py-2.5 text-sm text-paper">
+        {s.home.startQuiz}
+      </a>
+      <a href={localizePath(lang, "/playground")} class="ui border border-rule px-5 py-2.5 text-sm">
+        {s.home.openPlayground}
+      </a>
+    </div>
+  </section>
+
+  {topics.map((topic) => (
+    <section class="mb-12">
+      <h2 class="eyebrow mb-4">{topic}</h2>
+      <ul class="border-t border-rule">
+        {concepts
+          .filter((c) => c.data.topic === topic)
+          .map((c) => (
+            <li class="border-b border-rule">
+              <a href={localizePath(lang, `/concepts/${c.id}`)} class="flex gap-5 py-4 hover:bg-surface">
+                <span class="gutter self-start pt-1">
+                  {String(c.data.offset).padStart(4, "0")}
+                </span>
+                <span class="flex-1">
+                  <span class="ui block font-medium">{c.data.title}</span>
+                  <span class="mt-1 block max-w-2xl text-[0.94rem] leading-relaxed text-muted">
+                    {c.data.definition}
+                  </span>
+                </span>
+                <span class="eyebrow hidden shrink-0 self-center sm:block">
+                  {countFor(c.id)} {s.home.qLabel} · {"·".repeat(c.data.difficulty)}
+                </span>
+              </a>
+            </li>
+          ))}
+      </ul>
+    </section>
+  ))}
+</Base>

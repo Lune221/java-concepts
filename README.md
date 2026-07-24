@@ -2,6 +2,7 @@
 
 A fully static study site. 29 concepts, 60 questions, and a Java playground that
 compiles and runs code in the browser. No backend, no database, no API keys.
+Bilingual — English at `/`, French at `/fr/`.
 
 ```
 npm install
@@ -76,6 +77,27 @@ Questions live in `src/data/questions.json`. Four shapes:
 
 Every `concept` value must match a concept filename. `npm run build` will not
 catch a mismatch, so run `node scripts/check-content.mjs` before committing.
+
+## Bilingual content
+
+English is canonical; French is a full mirror. Adding or editing a concept or
+question means touching both sides:
+
+| English | French |
+| --- | --- |
+| `src/content/concepts/<slug>.md` | `src/content/concepts-fr/<slug>.md` — same filename/slug, translated frontmatter + body |
+| `src/data/questions.json` | `src/data/questions.fr.json` — same `id`/`concept`/`type`/`code`/`blanks`/`answer`, translated `prompt`/`options`/`explanation`/`expected` |
+
+UI chrome strings (nav, buttons, page copy) live in `src/lib/i18n.ts`, keyed
+by locale. `node scripts/check-content.mjs` checks both locales *and* the
+parity between them — a concept with no French translation, or a question
+whose structural fields (type, code, blanks, mcq answer index) drifted
+between the two files, fails the check.
+
+Routes are unprefixed for English (`/`, `/concepts/:slug`, `/quiz`,
+`/playground`) and prefixed for French (`/fr`, `/fr/concepts/:slug`, ...);
+see the `i18n` block in `astro.config.mjs`. Both locales share progress in
+`localStorage`, since question `id`s are identical across the two files.
 
 ## Progress
 

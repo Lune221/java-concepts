@@ -1,0 +1,665 @@
+[
+  {
+    "id": "q-001",
+    "concept": "object-construction",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "class Base {\n    Base() { System.out.println(describe()); }\n    String describe() { return \"base\"; }\n}\n\nclass Derived extends Base {\n    private String name = \"derived\";\n    @Override String describe() { return name; }\n}\n\nnew Derived();",
+    "expected": "null",
+    "explanation": "Le constructeur de la superclasse s'exécute avant les initialiseurs de champs de la sous-classe, donc name est encore null quand describe() redéfinie est appelée. N'appelez jamais une méthode redéfinissable depuis un constructeur."
+  },
+  {
+    "id": "q-002",
+    "concept": "object-construction",
+    "type": "mcq",
+    "prompt": "Dans quel ordre s'exécute l'initialisation d'instance ?",
+    "options": [
+      "Le corps du constructeur, puis les initialiseurs de champs, puis les blocs d'instance",
+      "L'initialisation de la superclasse, puis les initialiseurs de champs et les blocs d'instance dans l'ordre du source, puis le corps du constructeur",
+      "Les initialiseurs de champs, puis le corps du constructeur, puis l'initialisation de la superclasse",
+      "Les blocs d'instance, puis l'initialisation de la superclasse, puis le corps du constructeur"
+    ],
+    "answer": 1,
+    "explanation": "La superclasse est entièrement initialisée en premier. Puis les initialiseurs de champs et les blocs d'instance s'exécutent entrelacés dans l'ordre où ils apparaissent dans le source, et c'est seulement ensuite que le corps du constructeur s'exécute."
+  },
+  {
+    "id": "q-003",
+    "concept": "finalizers-and-gc",
+    "type": "flashcard",
+    "prompt": "Pourquoi finalize() est-elle inutilisable pour libérer des ressources ?",
+    "expected": "Elle peut ne jamais s'exécuter du tout — la JVM peut se terminer sans finaliser. Elle s'exécute sur un thread non spécifié à un moment non spécifié, coûte au moins deux cycles de GC, et peut ressusciter l'objet. AutoCloseable avec try-with-resources, ou Cleaner, la remplace.",
+    "explanation": ""
+  },
+  {
+    "id": "q-004",
+    "concept": "finalizers-and-gc",
+    "type": "mcq",
+    "prompt": "Quel type de référence n'est effacé qu'après que l'objet a été finalisé, ce qui en fait la base de Cleaner ?",
+    "options": [
+      "SoftReference",
+      "WeakReference",
+      "PhantomReference",
+      "AtomicReference"
+    ],
+    "answer": 2,
+    "explanation": "PhantomReference est mise en file post-mortem, ce qui la rend sûre pour des actions de nettoyage. SoftReference est effacée sous pression mémoire et WeakReference à la prochaine collecte."
+  },
+  {
+    "id": "q-005",
+    "concept": "singleton-and-factories",
+    "type": "mcq",
+    "prompt": "Quelle forme de singleton est thread-safe et résistante aux attaques par réflexion comme par désérialisation ?",
+    "options": [
+      "Un champ statique initialisé de façon anticipée",
+      "Un verrouillage à double vérification sur un champ volatile",
+      "Un enum à une seule constante",
+      "Une méthode getInstance() synchronized"
+    ],
+    "answer": 2,
+    "explanation": "La JVM garantit qu'une constante d'enum est instanciée une seule fois, et l'instanciation par réflexion comme la désérialisation des enums sont bloquées par la plateforme. Les autres formes sont thread-safe mais pas résistantes aux attaques."
+  },
+  {
+    "id": "q-006",
+    "concept": "singleton-and-factories",
+    "type": "flashcard",
+    "prompt": "Nommez trois avantages d'une méthode de fabrique statique sur un constructeur.",
+    "expected": "Elle a un nom, donc son intention est lisible. Elle n'est pas obligée de renvoyer une nouvelle instance, donc elle peut mettre en cache ou en pool. Elle peut renvoyer n'importe quel sous-type de son type de retour déclaré. List.of, Optional.empty et Integer.valueOf exploitent chacune au moins l'un de ces avantages.",
+    "explanation": ""
+  },
+  {
+    "id": "q-007",
+    "concept": "equals-hashcode",
+    "type": "output",
+    "prompt": "Point redéfinit equals mais pas hashCode. Qu'est-ce qui est affiché ?",
+    "code": "Set<Point> set = new HashSet<>();\nset.add(new Point(1, 2));\nSystem.out.println(set.contains(new Point(1, 2)));",
+    "expected": "false",
+    "explanation": "Le second Point obtient un hash code d'identité différent, donc la recherche va vers un compartiment différent et equals n'est jamais consultée. Des objets égaux doivent produire des hash codes égaux."
+  },
+  {
+    "id": "q-008",
+    "concept": "equals-hashcode",
+    "type": "mcq",
+    "prompt": "Laquelle de ces affirmations sur le contrat equals/hashCode est vraie ?",
+    "options": [
+      "Des hash codes égaux impliquent des objets égaux",
+      "Des objets égaux doivent avoir des hash codes égaux, mais des hash codes égaux n'impliquent pas l'égalité",
+      "Les deux sens de l'implication sont exigés",
+      "hashCode n'a d'importance que pour TreeMap"
+    ],
+    "answer": 1,
+    "explanation": "Les collisions sont légales et inévitables — des objets distincts peuvent partager un hash code. Seul le sens direct est un contrat."
+  },
+  {
+    "id": "q-009",
+    "concept": "equals-hashcode",
+    "type": "fill",
+    "prompt": "Complétez l'implémentation null-safe de hashCode.",
+    "code": "@Override\npublic int hashCode() {\n    return ___.hash(firstName, lastName, birthDate);\n}",
+    "blanks": [
+      "Objects"
+    ],
+    "explanation": "Objects.hash accepte des varargs et gère les nulls. Notez qu'elle alloue un tableau à chaque appel, donc les classes sur un chemin critique calculent parfois la valeur à la main ou la mettent en cache."
+  },
+  {
+    "id": "q-010",
+    "concept": "defensive-copying",
+    "type": "flashcard",
+    "prompt": "Pourquoi une copie défensive devrait-elle être faite avant de valider un argument de constructeur ?",
+    "expected": "Sinon, un appelant hostile détenant une référence à l'argument mutable peut le modifier dans la fenêtre entre la vérification de validité et l'assignation du champ. Copiez d'abord, puis validez la copie.",
+    "explanation": ""
+  },
+  {
+    "id": "q-011",
+    "concept": "defensive-copying",
+    "type": "mcq",
+    "prompt": "Quel type de copie Object.clone() produit-elle par défaut ?",
+    "options": [
+      "Une copie profonde de tout le graphe d'objets",
+      "Une copie superficielle — les objets mutables imbriqués restent partagés",
+      "Aucune copie ; elle renvoie this",
+      "Une copie seulement des champs final"
+    ],
+    "answer": 1,
+    "explanation": "Les champs sont copiés bit à bit, donc tout champ de référence pointe vers le même objet que l'original. Cloneable ne déclare pas non plus clone(), ce qui explique pourquoi tout le protocole est considéré comme cassé."
+  },
+  {
+    "id": "q-012",
+    "concept": "string-pool",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "String a = \"ja\" + \"va\";\nString b = \"java\";\nString c = new StringBuilder(\"ja\").append(\"va\").toString();\nSystem.out.println(a == b);\nSystem.out.println(b == c);",
+    "expected": "true\nfalse",
+    "explanation": "\"ja\" + \"va\" est une expression constante repliée à la compilation dans le littéral mis en pool. Le résultat du StringBuilder est produit à l'exécution et n'est pas mis en pool."
+  },
+  {
+    "id": "q-013",
+    "concept": "functional-interfaces",
+    "type": "mcq",
+    "prompt": "Une interface déclare une méthode abstraite plus un equals(Object) abstrait. Est-elle toujours une interface fonctionnelle ?",
+    "options": [
+      "Non — elle a deux méthodes abstraites",
+      "Oui — les méthodes publiques d'Object ne comptent pas dans le total",
+      "Seulement si annotée avec @FunctionalInterface",
+      "Seulement si equals a une implémentation par défaut"
+    ],
+    "answer": 1,
+    "explanation": "Les méthodes qui redéclarent une méthode publique d'Object sont exclues du décompte. C'est exactement pourquoi Comparator, qui déclare equals, reste fonctionnelle."
+  },
+  {
+    "id": "q-014",
+    "concept": "functional-interfaces",
+    "type": "fill",
+    "prompt": "La classe C hérite d'un hello() default conflictuel de A et de B. Désambiguïsez vers la version de A.",
+    "code": "class C implements A, B {\n    @Override public void hello() {\n        ___.super.hello();\n    }\n}",
+    "blanks": [
+      "A"
+    ],
+    "explanation": "La syntaxe InterfaceName.super.method() sélectionne explicitement un default hérité. Le compilateur refuse de deviner quand deux interfaces sans rapport fournissent le même default."
+  },
+  {
+    "id": "q-015",
+    "concept": "immutable-classes",
+    "type": "flashcard",
+    "prompt": "Quelle est la garantie des champs final dans le modèle mémoire ?",
+    "expected": "Une fois qu'un constructeur se termine sans laisser `this` s'échapper, chaque thread est garanti de voir les valeurs entièrement initialisées des champs final de l'objet, sans aucune synchronisation. Laissez `this` s'échapper du constructeur et la garantie est perdue.",
+    "explanation": ""
+  },
+  {
+    "id": "q-016",
+    "concept": "inheritance-vs-composition",
+    "type": "mcq",
+    "prompt": "Un CountingSet hérite de HashSet et redéfinit à la fois add et addAll pour incrémenter un compteur. Ajouter trois éléments via addAll donne un compte de six. Pourquoi ?",
+    "options": [
+      "addAll est appelée deux fois en interne",
+      "HashSet.addAll est implémentée en termes de add, donc les deux redéfinitions se déclenchent",
+      "HashSet met en cache la taille",
+      "Le compteur n'est pas volatile"
+    ],
+    "answer": 1,
+    "explanation": "La sous-classe dépend d'un motif d'auto-utilisation non documenté de la superclasse. La composition avec délégation ne peut pas casser de cette façon, car elle ne repose que sur le contrat publié."
+  },
+  {
+    "id": "q-017",
+    "concept": "inheritance-vs-composition",
+    "type": "flashcard",
+    "prompt": "Quand l'héritage est-il le bon choix plutôt que la composition ?",
+    "expected": "Seulement pour une véritable relation « est-un » où le supertype a été conçu pour l'extension — c'est-à-dire qu'il documente ses motifs d'auto-utilisation, ou qu'il est abstract avec des méthodes-crochets clairement désignées. Tout le reste devrait être final.",
+    "explanation": ""
+  },
+  {
+    "id": "q-018",
+    "concept": "type-erasure",
+    "type": "mcq",
+    "prompt": "Pourquoi `new T[10]` échoue-t-il à compiler dans une classe générique ?",
+    "options": [
+      "Les tableaux ne peuvent pas du tout être génériques",
+      "T est effacé, donc il n'y a aucun type de composant à l'exécution pour que le tableau puisse vérifier",
+      "Le tableau ne serait pas sérialisable",
+      "T pourrait être une interface"
+    ],
+    "answer": 1,
+    "explanation": "Les tableaux sont réifiés — ils stockent et vérifient leur type de composant à l'exécution — tandis que les variables de type sont effacées. Le contournement habituel est (T[]) new Object[10] avec un avertissement unchecked supprimé."
+  },
+  {
+    "id": "q-019",
+    "concept": "type-erasure",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "List<String> a = new ArrayList<>();\nList<Integer> b = new ArrayList<>();\nSystem.out.println(a.getClass() == b.getClass());",
+    "expected": "true",
+    "explanation": "Les deux s'effacent vers ArrayList. La paramétrisation n'existe qu'à la compilation et ne laisse aucune trace dans la classe à l'exécution."
+  },
+  {
+    "id": "q-020",
+    "concept": "wildcards-pecs",
+    "type": "mcq",
+    "prompt": "Vous avez besoin d'un paramètre dont vous ne ferez que lire des Number. Quelle déclaration ?",
+    "options": [
+      "List<Number>",
+      "List<? extends Number>",
+      "List<? super Number>",
+      "List<?>"
+    ],
+    "answer": 1,
+    "explanation": "Producer Extends. `? extends Number` accepte List<Integer>, List<Double>, etc., et chaque élément lu est garanti d'être un Number. Vous ne pouvez rien y ajouter, ce qui est correct pour un producteur."
+  },
+  {
+    "id": "q-021",
+    "concept": "wildcards-pecs",
+    "type": "fill",
+    "prompt": "Complétez la signature pour que src puisse être lu et dst écrit.",
+    "code": "void copy(List<? ___ Number> src, List<? ___ Number> dst) {\n    for (Number n : src) dst.add(n);\n}",
+    "blanks": [
+      "extends",
+      "super"
+    ],
+    "explanation": "Producer Extends, Consumer Super. Lire est sûr depuis un wildcard à borne supérieure ; écrire est sûr vers un wildcard à borne inférieure."
+  },
+  {
+    "id": "q-022",
+    "concept": "wildcards-pecs",
+    "type": "flashcard",
+    "prompt": "Quelle est la différence entre List<?> et le type brut List ?",
+    "expected": "List<?> est type-safe : le compilateur sait que le type d'élément est un type inconnu spécifique, donc il interdit d'ajouter quoi que ce soit sauf null. Le List brut désactive entièrement la vérification générique et produit des avertissements unchecked.",
+    "explanation": ""
+  },
+  {
+    "id": "q-023",
+    "concept": "enums",
+    "type": "mcq",
+    "prompt": "Pourquoi ordinal() ne devrait-elle jamais être persistée ?",
+    "options": [
+      "Elle n'est pas sérialisable",
+      "Elle change dès que quelqu'un réordonne les déclarations de constantes",
+      "Elle est toujours zéro pour la première constante",
+      "Elle est privée"
+    ],
+    "answer": 1,
+    "explanation": "L'ordinal est positionnel. Réordonner ou insérer une constante change silencieusement le sens de chaque valeur stockée. Persistez name() ou un champ code explicite et déclaré."
+  },
+  {
+    "id": "q-024",
+    "concept": "enums",
+    "type": "mcq",
+    "prompt": "Pourquoi EnumSet et EnumMap sont-ils plus rapides que HashSet et HashMap pour des clés enum ?",
+    "options": [
+      "Ils sont synchronized",
+      "L'ensemble des constantes est connu et indexé par ordinal, donc ils utilisent un vecteur de bits et un simple tableau",
+      "Ils mettent en cache les hash codes",
+      "Ils évitent seulement le boxing"
+    ],
+    "answer": 1,
+    "explanation": "Aucun hachage ni gestion de collision n'est nécessaire. L'itération suit aussi l'ordre de déclaration plutôt que l'ordre de hachage."
+  },
+  {
+    "id": "q-025",
+    "concept": "annotation-retention",
+    "type": "mcq",
+    "prompt": "Quelle politique de rétention est requise pour qu'une annotation soit lisible par réflexion ?",
+    "options": [
+      "SOURCE",
+      "CLASS",
+      "RUNTIME",
+      "INHERITED"
+    ],
+    "answer": 2,
+    "explanation": "CLASS est la valeur par défaut et conserve l'annotation dans le fichier de classe mais pas dans le pool de constantes à l'exécution. Seule RUNTIME la rend visible à getAnnotation."
+  },
+  {
+    "id": "q-026",
+    "concept": "annotation-retention",
+    "type": "flashcard",
+    "prompt": "Quelles sont les limites de @Inherited ?",
+    "expected": "Elle ne s'applique qu'aux annotations de niveau classe et seulement le long d'une chaîne de superclasses. Les annotations sur les interfaces ne sont jamais héritées par les classes qui les implémentent, et les annotations de niveau méthode ne sont jamais héritées par les méthodes qui redéfinissent.",
+    "explanation": ""
+  },
+  {
+    "id": "q-027",
+    "concept": "annotation-retention",
+    "type": "fill",
+    "prompt": "Rendez cette annotation lisible par un framework à l'exécution et utilisable seulement sur des méthodes.",
+    "code": "@Retention(RetentionPolicy.___)\n@Target(ElementType.___)\npublic @interface Audited { }",
+    "blanks": [
+      "RUNTIME",
+      "METHOD"
+    ],
+    "explanation": "Sans rétention RUNTIME, l'annotation est écartée avant que la réflexion puisse la voir. @Target restreint le placement pour qu'un mauvais usage devienne une erreur de compilation."
+  },
+  {
+    "id": "q-028",
+    "concept": "overloading-vs-overriding",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "class Printer {\n    void print(Object o) { System.out.println(\"Object\"); }\n    void print(String s) { System.out.println(\"String\"); }\n}\n\nObject value = \"hello\";\nnew Printer().print(value);",
+    "expected": "Object",
+    "explanation": "Les surcharges sont résolues à partir du type statique, à la compilation. Le type déclaré de value est Object, donc print(Object) est sélectionnée indépendamment de ce qu'elle contient réellement."
+  },
+  {
+    "id": "q-029",
+    "concept": "overloading-vs-overriding",
+    "type": "mcq",
+    "prompt": "Pour l'appel f(1), quelle surcharge l'emporte ?",
+    "options": [
+      "f(long)",
+      "f(Integer)",
+      "f(int...)",
+      "f(Object)"
+    ],
+    "answer": 0,
+    "explanation": "La résolution s'exécute en trois phases : élargissement seul, puis boxing, puis varargs. Elle s'arrête à la première phase qui trouve une correspondance, donc la conversion par élargissement vers long bat le boxing vers Integer et bat les varargs."
+  },
+  {
+    "id": "q-030",
+    "concept": "overloading-vs-overriding",
+    "type": "flashcard",
+    "prompt": "Laquelle de ces choses une méthode qui redéfinit peut-elle changer : le type de retour, la visibilité, les exceptions vérifiées ?",
+    "expected": "Le type de retour peut être covariant (un sous-type). La visibilité peut s'élargir mais jamais se restreindre. Les exceptions vérifiées peuvent être restreintes ou supprimées mais jamais élargies. La liste de paramètres doit correspondre exactement — tout le reste est une surcharge, pas une redéfinition.",
+    "explanation": ""
+  },
+  {
+    "id": "q-031",
+    "concept": "method-references",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "List<String> list = new ArrayList<>();\nSupplier<Integer> s = list::size;\nlist.add(\"a\");\nlist.add(\"b\");\nSystem.out.println(s.get());",
+    "expected": "2",
+    "explanation": "Une référence de méthode liée capture l'objet récepteur, pas la variable. L'objet list est le même que celui qui a été muté, donc la taille reflète les ajouts. Réassigner la variable à une nouvelle liste ne serait pas visible."
+  },
+  {
+    "id": "q-032",
+    "concept": "method-references",
+    "type": "mcq",
+    "prompt": "String::length en tant que Function<String, Integer> est quel type de référence ?",
+    "options": [
+      "Statique",
+      "Instance liée",
+      "Instance non liée — l'argument devient le récepteur",
+      "Constructeur"
+    ],
+    "answer": 2,
+    "explanation": "Aucun récepteur n'est fourni à la création, donc la fonction résultante prend le récepteur comme paramètre. À contraster avec str::length, qui est liée et ne prend aucun argument."
+  },
+  {
+    "id": "q-033",
+    "concept": "boxing-and-caching",
+    "type": "output",
+    "prompt": "Qu'affiche ce code ?",
+    "code": "Integer a = 127, b = 127;\nInteger c = 128, d = 128;\nSystem.out.println(a == b);\nSystem.out.println(c == d);",
+    "expected": "true\nfalse",
+    "explanation": "Integer.valueOf met en cache la plage -128 à 127 par spécification, donc les deux références 127 pointent vers le même objet en cache. 128 est en dehors du cache et alloue deux objets distincts."
+  },
+  {
+    "id": "q-034",
+    "concept": "boxing-and-caching",
+    "type": "output",
+    "prompt": "Que se passe-t-il ici ?",
+    "code": "Map<String, Integer> counts = new HashMap<>();\nint n = counts.get(\"absent\");\nSystem.out.println(n);",
+    "expected": "NullPointerException",
+    "explanation": "get renvoie null pour une clé absente, et déballer null vers int lance une exception. La ligne ne contient aucun appel de méthode visible sur une référence null, ce qui rend cela si difficile à repérer. Utilisez getOrDefault."
+  },
+  {
+    "id": "q-035",
+    "concept": "boxing-and-caching",
+    "type": "flashcard",
+    "prompt": "Quand devriez-vous utiliser un type wrapper plutôt qu'une primitive ?",
+    "expected": "Seulement quand vous avez besoin que null signifie quelque chose, quand la valeur est un élément de collection, ou quand c'est un argument de type générique. Partout ailleurs les primitives évitent l'allocation et suppriment toute une classe de NullPointerException.",
+    "explanation": ""
+  },
+  {
+    "id": "q-036",
+    "concept": "checked-vs-unchecked",
+    "type": "mcq",
+    "prompt": "Qu'est-ce qui devrait décider si une exception est vérifiée ou non vérifiée ?",
+    "options": [
+      "La gravité de l'échec",
+      "Si l'appelant dispose d'une action de récupération réaliste",
+      "Si elle traverse une frontière de module",
+      "Si elle sera journalisée"
+    ],
+    "answer": 1,
+    "explanation": "Les exceptions vérifiées forcent l'appelant à reconnaître une condition qu'il peut plausiblement gérer. Les erreurs de programmation et les préconditions violées devraient être non vérifiées, car aucune récupération à l'exécution n'est possible."
+  },
+  {
+    "id": "q-037",
+    "concept": "try-with-resources",
+    "type": "output",
+    "prompt": "Quelle exception atteint l'appelant, et où va l'autre ?",
+    "code": "try (Resource r = new Resource()) {   // close() throws CloseFailure\n    throw new WorkFailure();\n}",
+    "expected": "WorkFailure",
+    "explanation": "L'exception venant du bloc try est la principale. L'échec venant de close() lui est attaché et récupérable via getSuppressed(). L'ancien idiome try/finally faisait l'inverse, laissant l'échec de fermeture écarter la vraie cause."
+  },
+  {
+    "id": "q-038",
+    "concept": "try-with-resources",
+    "type": "fill",
+    "prompt": "Récupérez l'exception lancée par close() après l'échec du bloc.",
+    "code": "catch (Exception e) {\n    for (Throwable t : e.___()) {\n        log.warn(\"close failed\", t);\n    }\n}",
+    "blanks": [
+      "getSuppressed"
+    ],
+    "explanation": "Les exceptions supprimées préservent l'échec de fermeture sans le laisser remplacer la cause principale."
+  },
+  {
+    "id": "q-039",
+    "concept": "checked-vs-unchecked",
+    "type": "flashcard",
+    "prompt": "Pourquoi `catch (SQLException e) { throw new RuntimeException(); }` est-il un bug ?",
+    "expected": "Il écarte la cause. La pile d'appels de la nouvelle exception commence au bloc catch, donc l'échec original — la requête, la contrainte, l'erreur de connexion — a disparu. Passez toujours l'exception attrapée comme cause.",
+    "explanation": ""
+  },
+  {
+    "id": "q-040",
+    "concept": "happens-before",
+    "type": "mcq",
+    "prompt": "Laquelle de ces situations n'établit PAS de lien happens-before ?",
+    "options": [
+      "Une écriture volatile suivie d'une lecture volatile du même champ",
+      "Thread.start() et la première action du thread démarré",
+      "Deux accès non synchronisés au même champ ordinaire depuis des threads différents",
+      "Relâcher un moniteur, puis acquérir ce même moniteur"
+    ],
+    "answer": 2,
+    "explanation": "Les lectures et écritures ordinaires ne portent aucune garantie d'ordre. Sans volatile, un verrou, ou un événement de cycle de vie de thread, le JIT peut réordonner librement et un thread peut lire une valeur périmée indéfiniment."
+  },
+  {
+    "id": "q-041",
+    "concept": "happens-before",
+    "type": "fill",
+    "prompt": "Rendez le drapeau stop visible au thread qui sonde.",
+    "code": "class Stopper {\n    private ___ boolean stop = false;\n\n    void run() { while (!stop) { } }\n    void requestStop() { stop = true; }\n}",
+    "blanks": [
+      "volatile"
+    ],
+    "explanation": "volatile crée le lien happens-before entre l'écriture et chaque lecture ultérieure, et empêche le JIT de hisser la lecture du champ hors de la boucle."
+  },
+  {
+    "id": "q-042",
+    "concept": "executors-and-futures",
+    "type": "mcq",
+    "prompt": "Une exception est lancée dans une tâche soumise avec submit(). Que se passe-t-il si personne n'appelle get() ?",
+    "options": [
+      "Elle atteint le gestionnaire d'exceptions non capturées du thread",
+      "Elle est capturée dans le Future et disparaît silencieusement",
+      "L'executor s'arrête",
+      "Elle est relancée sur le thread qui a soumis"
+    ],
+    "answer": 1,
+    "explanation": "submit enveloppe la tâche et stocke le throwable dans le Future. execute() la laisse au contraire se propager vers le gestionnaire d'exceptions non capturées. Cette asymétrie avale silencieusement un grand nombre d'erreurs en production."
+  },
+  {
+    "id": "q-043",
+    "concept": "executors-and-futures",
+    "type": "flashcard",
+    "prompt": "Pourquoi une file de travail non bornée est-elle dangereuse dans un pool de threads en production ?",
+    "expected": "Sous surcharge soutenue, la file grandit sans limite jusqu'à ce que la JVM manque de mémoire, au lieu de repousser le producteur. Construisez directement un ThreadPoolExecutor avec une file bornée et une politique de rejet explicite pour que la surcharge devienne de la contre-pression.",
+    "explanation": ""
+  },
+  {
+    "id": "q-044",
+    "concept": "atomics-and-cas",
+    "type": "mcq",
+    "prompt": "Pourquoi un volatile int reste-t-il dangereux comme compteur ?",
+    "options": [
+      "volatile ne s'applique pas aux primitives",
+      "volatile garantit la visibilité et l'ordre, pas l'atomicité — count++ est trois opérations",
+      "Les lectures volatile sont mises en cache par thread",
+      "Cela ne fonctionne qu'à l'intérieur de blocs synchronized"
+    ],
+    "answer": 1,
+    "explanation": "La lecture, l'incrémentation et l'écriture peuvent s'entrelacer entre threads, donc des incréments sont perdus. AtomicInteger rend toute la mise à jour indivisible avec une boucle de réessai par compare-and-swap."
+  },
+  {
+    "id": "q-045",
+    "concept": "atomics-and-cas",
+    "type": "flashcard",
+    "prompt": "Qu'est-ce que le problème ABA ?",
+    "expected": "Une valeur change de A à B puis revient à A entre votre lecture et votre compare-and-swap. Le CAS voit la valeur attendue et réussit, même si l'état a été modifié entre-temps. AtomicStampedReference attache un compteur de version pour le détecter.",
+    "explanation": ""
+  },
+  {
+    "id": "q-046",
+    "concept": "concurrent-collections",
+    "type": "output",
+    "prompt": "Cet incrément est-il atomique sur une ConcurrentHashMap ?",
+    "code": "Integer current = map.get(key);\nmap.put(key, current == null ? 1 : current + 1);",
+    "expected": "Non",
+    "explanation": "Chaque opération individuelle est thread-safe, mais la séquence get-puis-put ne l'est pas — un autre thread peut s'entrelacer entre les deux et une mise à jour est perdue. Utilisez plutôt map.merge(key, 1, Integer::sum)."
+  },
+  {
+    "id": "q-047",
+    "concept": "concurrent-collections",
+    "type": "fill",
+    "prompt": "Protégez correctement un wait() contre les réveils intempestifs.",
+    "code": "synchronized (lock) {\n    ___ (!condition) {\n        lock.wait();\n    }\n}",
+    "blanks": [
+      "while"
+    ],
+    "explanation": "Un thread peut se réveiller sans aucun notify, et la condition peut avoir été consommée par un autre attendeur. Le prédicat doit être revérifié dans une boucle ; un if est une course."
+  },
+  {
+    "id": "q-048",
+    "concept": "serialization",
+    "type": "mcq",
+    "prompt": "Que se passe-t-il si vous omettez serialVersionUID ?",
+    "options": [
+      "La sérialisation échoue immédiatement",
+      "Le compilateur en dérive un depuis la structure de la classe, donc presque toute modification casse la désérialisation des données existantes",
+      "Elle vaut 0 par défaut et ne change jamais",
+      "Seules les classes Externalizable sont affectées"
+    ],
+    "answer": 1,
+    "explanation": "La valeur générée dépend des champs, méthodes et modificateurs. Ajouter une méthode peut la changer, produisant InvalidClassException contre des données écrites précédemment. Déclarez-la toujours explicitement."
+  },
+  {
+    "id": "q-049",
+    "concept": "serialization",
+    "type": "flashcard",
+    "prompt": "Pourquoi la désérialisation est-elle un risque de sécurité ?",
+    "expected": "Les objets sont reconstruits sans exécuter aucun constructeur, donc chaque invariant qui y est appliqué est contourné. Des flux d'octets forgés peuvent piloter des chaînes de gadgets à travers les classes du classpath jusqu'à l'exécution de code distant. ObjectInputFilter existe pour restreindre ce qui peut être désérialisé.",
+    "explanation": ""
+  },
+  {
+    "id": "q-050",
+    "concept": "serialization",
+    "type": "mcq",
+    "prompt": "Pendant la désérialisation, quel constructeur s'exécute ?",
+    "options": [
+      "Le constructeur sans argument de la classe elle-même",
+      "Le constructeur sans argument de la première superclasse non sérialisable",
+      "Le constructeur correspondant aux champs sérialisés",
+      "Aucun, jamais"
+    ],
+    "answer": 1,
+    "explanation": "La partie sérialisable de la hiérarchie est restaurée depuis le flux sans construction, mais la première superclasse non sérialisable doit avoir un constructeur sans argument accessible, et il est invoqué."
+  },
+  {
+    "id": "q-051",
+    "concept": "reflection",
+    "type": "mcq",
+    "prompt": "Quelle est la différence entre getMethods() et getDeclaredMethods() ?",
+    "options": [
+      "Aucune différence",
+      "getMethods renvoie les membres publics y compris hérités ; getDeclaredMethods renvoie tous les membres déclarés sur cette classe exacte mais rien d'hérité",
+      "getDeclaredMethods renvoie seulement les membres privés",
+      "getMethods exclut les méthodes statiques"
+    ],
+    "answer": 1,
+    "explanation": "Confondre les deux est le bug de réflexion le plus courant — chercher une méthode privée avec getMethod, ou une méthode héritée avec getDeclaredMethod."
+  },
+  {
+    "id": "q-052",
+    "concept": "reflection",
+    "type": "flashcard",
+    "prompt": "Vous appelez Method.invoke et la cible lance une exception. Que capturez-vous réellement ?",
+    "expected": "InvocationTargetException, qui enveloppe la vraie exception. Déballez-la toujours avec getCause() avant de journaliser ou de relancer, sinon la pile d'appels pointe vers la mécanique de réflexion plutôt que vers l'échec.",
+    "explanation": ""
+  },
+  {
+    "id": "q-053",
+    "concept": "method-handles",
+    "type": "mcq",
+    "prompt": "Pourquoi invokeExact lance-t-elle WrongMethodTypeException plus souvent qu'invoke ?",
+    "options": [
+      "Elle n'effectue aucune vérification d'accès",
+      "Elle exige que la signature statique du site d'appel corresponde exactement au MethodType du handle, y compris le cast de retour",
+      "Elle ne peut pas gérer les primitives",
+      "Elle n'est valide que pour les méthodes statiques"
+    ],
+    "answer": 1,
+    "explanation": "invokeExact ne fait aucune conversion. Un cast manquant sur la valeur de retour en est la cause habituelle. invoke insère les conversions pour vous à un petit coût."
+  },
+  {
+    "id": "q-054",
+    "concept": "method-handles",
+    "type": "flashcard",
+    "prompt": "Où avez-vous déjà utilisé des method handles sans en écrire vous-même ?",
+    "expected": "Chaque expression lambda. Les lambdas compilent vers une instruction invokedynamic dont la méthode bootstrap construit un MethodHandle à la première exécution, ce qui explique pourquoi elles ne génèrent pas chacune un fichier de classe comme le font les classes anonymes.",
+    "explanation": ""
+  },
+  {
+    "id": "q-055",
+    "concept": "scripting-api",
+    "type": "mcq",
+    "prompt": "Comment ScriptEngineManager découvre-t-il les moteurs disponibles ?",
+    "options": [
+      "Une liste codée en dur",
+      "ServiceLoader, donc ajouter un jar de langage au classpath suffit",
+      "Une propriété système",
+      "Une recherche JNDI"
+    ],
+    "answer": 1,
+    "explanation": "Les moteurs JSR-223 s'enregistrent via le mécanisme du service loader. Nashorn a été retiré en Java 15, donc le moteur js de GraalVM est aujourd'hui la voie vers JavaScript sur la JVM."
+  },
+  {
+    "id": "q-056",
+    "concept": "compiler-api",
+    "type": "flashcard",
+    "prompt": "Comment un programme peut-il compiler du source Java à l'exécution sans processus externe ?",
+    "expected": "ToolProvider.getSystemJavaCompiler() renvoie javac en tant que bibliothèque. Fournissez-lui des JavaFileObjects — qui peuvent servir le source directement depuis une String — collectez les diagnostics avec un DiagnosticCollector, et chargez les octets résultants avec un ClassLoader personnalisé. Elle renvoie null sur un JRE sans le module compilateur.",
+    "explanation": ""
+  },
+  {
+    "id": "q-057",
+    "concept": "annotation-processors",
+    "type": "mcq",
+    "prompt": "Un processeur d'annotations peut-il modifier le corps d'une classe existante ?",
+    "options": [
+      "Oui, via le Filer",
+      "Non — il ne peut que générer de nouveaux fichiers source ; le code existant est en lecture seule",
+      "Seulement pour des classes du même package",
+      "Seulement pendant le round final"
+    ],
+    "answer": 1,
+    "explanation": "L'API officielle est génération seule, ce qui explique pourquoi les builders et composants générés sont des classes séparées. Lombok modifie l'AST du compilateur via des API internes, ce qui est précisément pourquoi elle casse d'une version de JDK à l'autre."
+  },
+  {
+    "id": "q-058",
+    "concept": "annotation-processors",
+    "type": "flashcard",
+    "prompt": "Que sont les rounds de traitement ?",
+    "expected": "Les sources générées sont compilées et elles-mêmes soumises au traitement des annotations, donc un processeur peut déclencher une génération supplémentaire. Le cycle se termine sur un round qui ne produit aucun nouveau fichier. Renvoyer true depuis process() revendique les annotations pour qu'aucun autre processeur ne les voie.",
+    "explanation": ""
+  },
+  {
+    "id": "q-059",
+    "concept": "java-agents",
+    "type": "mcq",
+    "prompt": "Quel changement N'est PAS permis par Instrumentation.redefineClasses ?",
+    "options": [
+      "Remplacer un corps de méthode",
+      "Ajouter une nouvelle méthode à la classe",
+      "Changer une constante dans une méthode",
+      "Réécrire une boucle"
+    ],
+    "answer": 1,
+    "explanation": "La redéfinition est limitée aux corps de méthode. Ajouter ou retirer des méthodes et des champs, ou changer la hiérarchie de classes, est rejeté — la disposition des objets et les vtables des instances existantes ne peuvent pas changer."
+  },
+  {
+    "id": "q-060",
+    "concept": "java-agents",
+    "type": "flashcard",
+    "prompt": "Quelle est la différence entre premain et agentmain ?",
+    "expected": "premain s'exécute avant la méthode main de l'application, quand l'agent est fourni avec -javaagent. agentmain est le point d'entrée quand l'agent est chargé dans une JVM déjà en cours d'exécution via l'Attach API, et elle appelle typiquement retransformClasses pour instrumenter des classes déjà chargées.",
+    "explanation": ""
+  }
+]

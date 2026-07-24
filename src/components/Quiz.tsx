@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { normalise, recordAnswer } from "../lib/progress";
+import { t, localizePath, type Lang } from "../lib/i18n";
 
 export type Question = {
   id: string;
@@ -14,7 +15,7 @@ export type Question = {
   explanation?: string;
 };
 
-type Props = { questions: Question[]; titles: Record<string, string> };
+type Props = { questions: Question[]; titles: Record<string, string>; lang?: Lang };
 
 function shuffle<T>(items: T[]): T[] {
   const out = [...items];
@@ -34,7 +35,8 @@ function select(all: Question[]): Question[] {
   return filtered.length > 0 ? filtered : all;
 }
 
-export default function Quiz({ questions, titles }: Props) {
+export default function Quiz({ questions, titles, lang = "en" }: Props) {
+  const s = t(lang);
   const pool = useMemo(() => select(questions), [questions]);
   const [order, setOrder] = useState(() => shuffle(pool));
   const [index, setIndex] = useState(0);
@@ -87,13 +89,11 @@ export default function Quiz({ questions, titles }: Props) {
     const pct = score.total ? Math.round((score.right / score.total) * 100) : 0;
     return (
       <div className="border border-rule bg-surface p-8 text-center">
-        <div className="eyebrow">Run complete</div>
+        <div className="eyebrow">{s.quiz.runComplete}</div>
         <p className="ui mt-3 text-5xl font-bold">{pct}%</p>
-        <p className="mt-2 text-muted">
-          {score.right} of {score.total} correct
-        </p>
+        <p className="mt-2 text-muted">{s.quiz.scoreLine(score.right, score.total)}</p>
         <button onClick={restart} className="ui mt-6 bg-ink px-5 py-2 text-sm text-paper">
-          Go again
+          {s.quiz.goAgain}
         </button>
       </div>
     );
@@ -121,9 +121,7 @@ export default function Quiz({ questions, titles }: Props) {
       </div>
 
       <div className="border border-t-0 border-rule bg-surface p-6">
-        <span className="eyebrow">{
-          { mcq: "Multiple choice", output: "Predict the output", flashcard: "Recall", fill: "Fill the blank" }[q.type]
-        }</span>
+        <span className="eyebrow">{s.quiz.typeLabels[q.type]}</span>
         <h2 className="ui mt-2 text-lg font-medium">{q.prompt}</h2>
 
         {q.code && q.type !== "fill" && <pre className="mt-4">{q.code}</pre>}
@@ -163,7 +161,7 @@ export default function Quiz({ questions, titles }: Props) {
             disabled={revealed}
             onChange={(e) => setTyped(e.target.value)}
             rows={3}
-            placeholder="Type exactly what the program prints"
+            placeholder={s.quiz.outputPlaceholder}
             className="mono mt-4 w-full border border-rule bg-white p-3 text-sm"
           />
         )}
@@ -200,7 +198,7 @@ export default function Quiz({ questions, titles }: Props) {
         {revealed && q.type !== "flashcard" && (
           <div className="mt-5 border-t border-rule pt-4">
             <p className="ui text-sm font-medium" style={{ color: correct ? "var(--moss)" : "var(--oxide)" }}>
-              {correct ? "Correct" : "Not quite"}
+              {correct ? s.quiz.correct : s.quiz.notQuite}
             </p>
             {!correct && (q.type === "output" || q.type === "fill") && (
               <pre className="mt-2">{q.type === "output" ? q.expected : (q.blanks ?? []).join(", ")}</pre>
@@ -217,24 +215,27 @@ export default function Quiz({ questions, titles }: Props) {
               disabled={q.type === "mcq" && choice === null}
               className="ui bg-ink px-5 py-2 text-sm text-paper disabled:opacity-40"
             >
-              {q.type === "flashcard" ? "Show answer" : "Check"}
+              {q.type === "flashcard" ? s.quiz.showAnswer : s.quiz.check}
             </button>
           ) : q.type === "flashcard" ? (
             <>
               <button onClick={() => next(false)} className="ui border border-rule px-5 py-2 text-sm">
-                Missed it
+                {s.quiz.missedIt}
               </button>
               <button onClick={() => next(true)} className="ui bg-ink px-5 py-2 text-sm text-paper">
-                Knew it
+                {s.quiz.knewIt}
               </button>
             </>
           ) : (
             <button onClick={() => next(correct)} className="ui bg-ink px-5 py-2 text-sm text-paper">
-              Next
+              {s.quiz.next}
             </button>
           )}
-          <a href={`/concepts/${q.concept}`} className="ui px-2 py-2 text-sm text-muted underline">
-            Read the concept
+          <a
+            href={localizePath(lang, `/concepts/${q.concept}`)}
+            className="ui px-2 py-2 text-sm text-muted underline"
+          >
+            {s.quiz.readConcept}
           </a>
         </div>
       </div>

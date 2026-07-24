@@ -1,0 +1,24 @@
+---
+import Base from "../../layouts/Base.astro";
+import Playground from "../Playground.tsx";
+import { t, type Lang } from "../../lib/i18n";
+
+const { lang = "en" as Lang } = Astro.props;
+const s = t(lang);
+---
+
+<Base title={s.playground.pageTitle} lang={lang}>
+  <span class="eyebrow">{s.playground.eyebrow}</span>
+  <h1 class="ui mt-2 text-3xl font-bold tracking-tight">{s.playground.h1}</h1>
+  <p class="mt-4 max-w-2xl leading-relaxed text-muted">
+    {s.playground.intro}
+  </p>
+
+  <div class="mt-8">
+    <Playground client:only="react" lang={lang} />
+  </div>
+
+  <p class="eyebrow mt-6 max-w-2xl leading-relaxed">
+    {s.playground.license}
+  </p>
+</Base>

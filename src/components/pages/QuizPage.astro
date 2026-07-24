@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Quiz from "../Quiz.tsx";
+import questionsEn from "../../data/questions.json";
+import questionsFr from "../../data/questions.fr.json";
+import { t, type Lang } from "../../lib/i18n";
+
+const { lang = "en" as Lang } = Astro.props;
+const s = t(lang);
+const questions = lang === "fr" ? questionsFr : questionsEn;
+const concepts = await getCollection(lang === "fr" ? "conceptsFr" : "concepts");
+const titles = Object.fromEntries(concepts.map((c) => [c.id, c.data.title]));
+---
+
+<Base title={s.quiz.pageTitle} lang={lang}>
+  <span class="eyebrow">{s.quiz.eyebrow}</span>
+  <h1 class="ui mb-8 mt-2 text-3xl font-bold tracking-tight">{s.quiz.h1}</h1>
+
+  <Quiz client:only="react" questions={questions} titles={titles} lang={lang} />
+</Base>

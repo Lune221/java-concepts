@@ -1,16 +1,5 @@
 ---
-import { getCollection } from "astro:content";
-import Base from "../layouts/Base.astro";
-import Quiz from "../components/Quiz.tsx";
-import questions from "../data/questions.json";
-
-const concepts = await getCollection("concepts");
-const titles = Object.fromEntries(concepts.map((c) => [c.id, c.data.title]));
+import QuizPage from "../components/pages/QuizPage.astro";
 ---
 
-<Base title="Quiz — Advanced Java">
-  <span class="eyebrow">Quiz</span>
-  <h1 class="ui mb-8 mt-2 text-3xl font-bold tracking-tight">Prove you have it</h1>
-
-  <Quiz client:only="react" questions={questions} titles={titles} />
-</Base>
+<QuizPage lang="en" />

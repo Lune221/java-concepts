@@ -1,24 +1,5 @@
 ---
-import Base from "../layouts/Base.astro";
-import Playground from "../components/Playground.tsx";
+import PlaygroundPage from "../components/pages/PlaygroundPage.astro";
 ---
 
-<Base title="Playground — Advanced Java">
-  <span class="eyebrow">Playground</span>
-  <h1 class="ui mt-2 text-3xl font-bold tracking-tight">Run it and see</h1>
-  <p class="mt-4 max-w-2xl leading-relaxed text-muted">
-    A complete JVM compiled to WebAssembly, running in this tab. javac is itself
-    written in Java, so your source is compiled and executed without anything
-    leaving your machine. The runtime is a large first download and is cached
-    afterwards.
-  </p>
-
-  <div class="mt-8">
-    <Playground client:only="react" />
-  </div>
-
-  <p class="eyebrow mt-6 max-w-2xl leading-relaxed">
-    Powered by CheerpJ. Free for personal projects and technical evaluation —
-    check the licence before putting this behind a commercial product.
-  </p>
-</Base>
+<PlaygroundPage lang="en" />

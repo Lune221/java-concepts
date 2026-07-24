@@ -1,13 +1,13 @@
 ---
 import { getCollection } from "astro:content";
-import ConceptPage from "../../components/pages/ConceptPage.astro";
+import ConceptPage from "../../../components/pages/ConceptPage.astro";
 
 export async function getStaticPaths() {
-  const concepts = await getCollection("concepts");
+  const concepts = await getCollection("conceptsFr");
   return concepts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
 ---
 
-<ConceptPage entry={entry} lang="en" />
+<ConceptPage entry={entry} lang="fr" />

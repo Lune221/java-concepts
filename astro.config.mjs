@@ -7,4 +7,9 @@ export default defineConfig({
   output: "static",
   integrations: [react(), tailwind({ applyBaseStyles: false })],
   markdown: { shikiConfig: { theme: "github-light", wrap: true } },
+  i18n: {
+    defaultLocale: "en",
+    locales: ["en", "fr"],
+    routing: { prefixDefaultLocale: false },
+  },
 });

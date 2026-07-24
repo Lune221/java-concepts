@@ -1,31 +1,35 @@
 ---
 import "../styles/global.css";
-const { title, description = "Advanced Java concepts, drilled." } = Astro.props;
+import { t, localizePath, delocalizePath, type Lang } from "../lib/i18n";
+
+const { title, description, lang = "en" as Lang } = Astro.props;
+const s = t(lang);
 const path = Astro.url.pathname;
 const nav = [
-  ["/", "Concepts"],
-  ["/quiz", "Quiz"],
-  ["/playground", "Playground"],
+  [localizePath(lang, "/"), s.nav.concepts],
+  [localizePath(lang, "/quiz"), s.nav.quiz],
+  [localizePath(lang, "/playground"), s.nav.playground],
 ];
+const switchHref = localizePath(s.otherLang, delocalizePath(path));
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={description ?? s.baseDescription} />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cjrtnc.leaningtech.com" crossorigin />
   </head>
   <body class="min-h-screen">
     <header class="border-b border-rule">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <a href="/" class="ui text-sm font-bold tracking-tight">
+        <a href={localizePath(lang, "/")} class="ui text-sm font-bold tracking-tight">
           advanced<span class="text-cobalt">.java</span>
         </a>
-        <nav class="flex gap-6">
+        <nav class="flex items-center gap-6">
           {nav.map(([href, label]) => (
             <a
               href={href}
@@ -35,6 +39,9 @@ const nav = [
               {label}
             </a>
           ))}
+          <a href={switchHref} class="eyebrow hover:text-ink" style="opacity: 0.6">
+            {s.otherLangLabel}
+          </a>
         </nav>
       </div>
     </header>
@@ -45,10 +52,7 @@ const nav = [
 
     <footer class="mt-16 border-t border-rule">
       <div class="mx-auto max-w-5xl px-6 py-8">
-        <p class="eyebrow">
-          Concepts follow the chapter structure of "Advanced Java" by Andriy Redko.
-          Explanations and questions are written independently.
-        </p>
+        <p class="eyebrow">{s.footer}</p>
       </div>
     </footer>
   </body>
