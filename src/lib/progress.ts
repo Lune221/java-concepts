@@ -40,6 +40,29 @@ export function clearProgress(): void {
   }
 }
 
+const CONCEPTS_KEY = "java-concepts:progress:concepts:v1";
+
+/** Concept slugs the user has visited. Shared across locales — the slug is the same either way. */
+export function readCompletedConcepts(): Set<string> {
+  if (typeof localStorage === "undefined") return new Set();
+  try {
+    return new Set(JSON.parse(localStorage.getItem(CONCEPTS_KEY) ?? "[]") as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+export function markConceptRead(slug: string): void {
+  const all = readCompletedConcepts();
+  if (all.has(slug)) return;
+  all.add(slug);
+  try {
+    localStorage.setItem(CONCEPTS_KEY, JSON.stringify([...all]));
+  } catch {
+    /* storage full or blocked — progress is a nicety, not a requirement */
+  }
+}
+
 /** Normalises output so trailing whitespace never fails a correct answer. */
 export function normalise(text: string): string {
   return text

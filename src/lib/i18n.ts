@@ -27,12 +27,15 @@ const strings = {
       startQuiz: "Start a quiz",
       openPlayground: "Open the playground",
       qLabel: "q",
+      readLabel: "read",
     },
     concept: {
       pageTitle: (title: string) => `${title} — Advanced Java`,
       allConcepts: "All concepts",
       questionsOnConcept: (n: number) => `${n} questions on this concept`,
       drillIt: "Drill it",
+      previous: "Previous",
+      next: "Next",
     },
     quiz: {
       pageTitle: "Quiz — Advanced Java",
@@ -101,12 +104,15 @@ const strings = {
       startQuiz: "Lancer un quiz",
       openPlayground: "Ouvrir le bac à sable",
       qLabel: "q",
+      readLabel: "lus",
     },
     concept: {
       pageTitle: (title: string) => `${title} — Java avancé`,
       allConcepts: "Tous les concepts",
       questionsOnConcept: (n: number) => `${n} questions sur ce concept`,
       drillIt: "S'entraîner",
+      previous: "Précédent",
+      next: "Suivant",
     },
     quiz: {
       pageTitle: "Quiz — Java avancé",

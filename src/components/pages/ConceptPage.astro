@@ -1,5 +1,5 @@
 ---
-import { render } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import questionsEn from "../../data/questions.json";
 import questionsFr from "../../data/questions.fr.json";
@@ -10,6 +10,13 @@ const s = t(lang);
 const questions = lang === "fr" ? questionsFr : questionsEn;
 const { Content } = await render(entry);
 const related = questions.filter((q) => q.concept === entry.id);
+
+const orderedConcepts = (await getCollection(lang === "fr" ? "conceptsFr" : "concepts")).sort(
+  (a, b) => a.data.offset - b.data.offset
+);
+const index = orderedConcepts.findIndex((c) => c.id === entry.id);
+const prev = index > 0 ? orderedConcepts[index - 1] : null;
+const next = index < orderedConcepts.length - 1 ? orderedConcepts[index + 1] : null;
 ---
 
 <Base title={s.concept.pageTitle(entry.data.title)} description={entry.data.definition} lang={lang}>
@@ -46,6 +53,32 @@ const related = questions.filter((q) => q.concept === entry.id);
           </a>
         </div>
       )}
+
+      <nav class="mt-10 flex items-start justify-between gap-6 border-t border-rule pt-6">
+        {prev ? (
+          <a href={localizePath(lang, `/concepts/${prev.id}`)} class="group max-w-[45%]">
+            <span class="eyebrow block">&larr; {s.concept.previous}</span>
+            <span class="ui mt-1 block font-medium group-hover:text-cobalt">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )}
+        {next ? (
+          <a href={localizePath(lang, `/concepts/${next.id}`)} class="group ml-auto max-w-[45%] text-right">
+            <span class="eyebrow block">{s.concept.next} &rarr;</span>
+            <span class="ui mt-1 block font-medium group-hover:text-cobalt">{next.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )}
+      </nav>
     </div>
   </article>
 </Base>
+
+<script>
+  import { markConceptRead } from "../../lib/progress";
+  // The slug is the last path segment for both /concepts/:slug and /fr/concepts/:slug.
+  const slug = location.pathname.replace(/\/$/, "").split("/").pop();
+  if (slug) markConceptRead(slug);
+</script>

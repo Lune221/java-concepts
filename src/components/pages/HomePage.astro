@@ -20,6 +20,9 @@ const countFor = (slug: string) => questions.filter((q) => q.concept === slug).l
 <Base title={s.home.pageTitle} lang={lang}>
   <section class="mb-16 border-b border-rule pb-12">
     <span class="eyebrow">{s.home.countSummary(concepts.length, questions.length)}</span>
+    <span class="eyebrow hidden" id="reading-progress">
+      · <span id="reading-progress-count">0</span>/{concepts.length} {s.home.readLabel}
+    </span>
     <h1 class="ui mt-4 max-w-2xl text-[2.75rem] font-bold leading-[1.08] tracking-tight">
       {s.home.h1}
     </h1>
@@ -49,7 +52,10 @@ const countFor = (slug: string) => questions.filter((q) => q.concept === slug).l
                   {String(c.data.offset).padStart(4, "0")}
                 </span>
                 <span class="flex-1">
-                  <span class="ui block font-medium">{c.data.title}</span>
+                  <span class="ui block font-medium">
+                    {c.data.title}
+                    <span class="concept-check hidden text-[color:var(--moss)]" data-slug={c.id}> ✓</span>
+                  </span>
                   <span class="mt-1 block max-w-2xl text-[0.94rem] leading-relaxed text-muted">
                     {c.data.definition}
                   </span>
@@ -64,3 +70,15 @@ const countFor = (slug: string) => questions.filter((q) => q.concept === slug).l
     </section>
   ))}
 </Base>
+
+<script>
+  import { readCompletedConcepts } from "../../lib/progress";
+  const done = readCompletedConcepts();
+  document.querySelectorAll<HTMLElement>("[data-slug]").forEach((el) => {
+    if (done.has(el.dataset.slug ?? "")) el.classList.remove("hidden");
+  });
+  const count = document.getElementById("reading-progress-count");
+  const summary = document.getElementById("reading-progress");
+  if (count) count.textContent = String(done.size);
+  if (summary && done.size > 0) summary.classList.remove("hidden");
+</script>
